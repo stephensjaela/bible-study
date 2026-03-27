@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bible Study">
+<meta name="theme-color" content="#0f1117">
+<title>Bible Study Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #161820;
+    --bg3: #1e2029;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0ece4;
+    --text2: #9b9690;
+    --text3: #5e5c58;
+    --gold: #c9a85c;
+    --gold2: #e8c97a;
+    --gold-dim: rgba(201,168,92,0.12);
+    --green: #4caf82;
+    --green-dim: rgba(76,175,130,0.12);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overscroll-behavior: none;
+  }
+
+  .app {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 0 100px;
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: env(safe-area-inset-top, 20px) 20px 0;
+    padding-top: calc(env(safe-area-inset-top, 20px) + 20px);
+    margin-bottom: 28px;
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .header-title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--gold2);
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+  }
+  .header-sub {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 3px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .reset-btn {
+    background: none;
+    border: 0.5px solid var(--border2);
+    color: var(--text3);
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-top: 4px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .reset-btn:active { opacity: 0.6; }
+
+  /* ── Stats ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .stat {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'Lora', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-lbl {
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 300;
+  }
+
+  /* ── Progress bar ── */
+  .prog-wrap {
+    margin: 14px 0 0;
+  }
+  .prog-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 6px;
+  }
+  .prog-track {
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* ── Pace selector ── */
+  .pace-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin: 14px 0 0;
+  }
+  .pace-row label { font-size: 12px; color: var(--text2); white-space: nowrap; }
+  .pace-row select {
+    flex: 1;
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+
+  /* ── Sections ── */
+  .section-wrap {
+    padding: 0 16px;
+  }
+  .section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text3);
+    font-weight: 400;
+    margin: 28px 0 12px;
+  }
+
+  /* ── Group card ── */
+  .group {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .group-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .group-head:active { background: var(--bg3); }
+  .group-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .group-text { flex: 1; min-width: 0; }
+  .group-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 2px;
+    line-height: 1.3;
+  }
+  .group-desc {
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.4;
+  }
+  .group-badge {
+    font-size: 11px;
+    color: var(--text3);
+    background: var(--bg3);
+    border-radius: 20px;
+    padding: 3px 9px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .group-badge.all-done {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+  .group-chevron {
+    font-size: 12px;
+    color: var(--text3);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+  }
+  .group.open .group-chevron { transform: rotate(180deg); }
+
+  /* ── Book list ── */
+  .book-list {
+    display: none;
+    border-top: 0.5px solid var(--border);
+  }
+  .group.open .book-list { display: block; }
+
+  .book-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 16px;
+    border-bottom: 0.5px solid var(--border);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .book-row:last-child { border-bottom: none; }
+  .book-row:active { background: var(--bg3); }
+  .book-row.done .book-name { color: var(--text3); text-decoration: line-through; text-decoration-color: var(--text3); }
+  .book-row.done .book-meta { color: var(--text3); opacity: 0.5; }
+
+  .check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border2);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    pointer-events: none;
+  }
+  .check.checked {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .check svg { display: none; }
+  .check.checked svg { display: block; }
+
+  .book-info { flex: 1; min-width: 0; }
+  .book-name {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .book-meta {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 1px;
+  }
+
+  .book-week {
+    font-size: 10px;
+    color: var(--text3);
+    text-align: right;
+    flex-shrink: 0;
+    line-height: 1.4;
+    max-width: 70px;
+  }
+
+  /* ── Bottom bar ── */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 20px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    background: rgba(15,17,23,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .bottom-verse {
+    flex: 1;
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.5;
+  }
+  .bottom-pct {
+    font-family: 'Lora', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 400px) {
+    .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .header-title { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-title">Bible Study</div>
+        <div class="header-sub">66 books · 1,189 chapters · 31,102 verses</div>
+      </div>
+      <button class="reset-btn" onclick="resetAll()">Reset</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-val" id="sBooks">0</div><div class="stat-lbl">Books</div></div>
+      <div class="stat"><div class="stat-val" id="sCh">0</div><div class="stat-lbl">Chapters</div></div>
+      <div class="stat"><div class="stat-val" id="sV">0</div><div class="stat-lbl">Verses</div></div>
+      <div class="stat"><div class="stat-val" id="sPct">0%</div><div class="stat-lbl">Done</div></div>
+    </div>
+
+    <div class="prog-wrap">
+      <div class="prog-meta">
+        <span>Progress</span>
+        <span id="progText">0 of 31,102 verses</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+
+    <div class="pace-row">
+      <label>Pace:</label>
+      <select id="paceSelect" onchange="pace=+this.value; renderAll()">
+        <option value="3">3 ch/day — 1 year</option>
+        <option value="4">4 ch/day — ~9 months</option>
+        <option value="5" selected>5 ch/day — ~8 months</option>
+        <option value="7">7 ch/day — ~6 months</option>
+        <option value="10">10 ch/day — ~4 months</option>
+        <option value="14">14 ch/day — ~3 months</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-wrap" id="groupsWrap"></div>
+</div>
+
+<div class="bottom-bar">
+  <div class="bottom-verse">"Your word is a lamp to my feet and a light to my path." — Psalm 119:105</div>
+  <div class="bottom-pct" id="botPct">0%</div>
+</div>
+
+<script>
+const GROUPS = [
+  {
+    id:'gospels', color:'#4caf82',
+    name:'The Gospels',
+    desc:'Who Jesus is and what he did on Earth',
+    books:[
+      {n:1,name:'John',chapters:21,verses:879},
+      {n:2,name:'Mark',chapters:16,verses:678},
+      {n:3,name:'Matthew',chapters:28,verses:1071},
+      {n:4,name:'Luke',chapters:24,verses:1151},
+    ]
+  },
+  {
+    id:'torah', color:'#c9a85c',
+    name:'The Torah',
+    desc:'The fall of man, sin, the Israelites and the Law',
+    books:[
+      {n:5,name:'Genesis',chapters:50,verses:1533},
+      {n:6,name:'Exodus',chapters:40,verses:1213},
+      {n:7,name:'Leviticus',chapters:27,verses:859},
+      {n:8,name:'Numbers',chapters:36,verses:1288},
+      {n:9,name:'Deuteronomy',chapters:34,verses:959},
+    ]
+  },
+  {
+    id:'paul1', color:'#a78bfa',
+    name:"Paul's Letters — Law & Sacrifice",
+    desc:"Laws, Jesus' sacrifice, walking in the Spirit",
+    books:[
+      {n:10,name:'Romans',chapters:16,verses:433},
+      {n:11,name:'Galatians',chapters:6,verses:149},
+      {n:12,name:'Colossians',chapters:4,verses:95},
+    ]
+  },
+  {
+    id:'wisdom', color:'#f59e42',
+    name:'Wisdom Books',
+    desc:'Godly wisdom and the meaning of life',
+    books:[
+      {n:13,name:'Proverbs',chapters:31,verses:915},
+      {n:14,name:'Ecclesiastes',chapters:12,verses:222},
+    ]
+  },
+  {
+    id:'suffering', color:'#f472b6',
+    name:'Suffering & Faith',
+    desc:'Trials, not following God for selfish gain',
+    books:[
+      {n:15,name:'Job',chapters:42,verses:1070},
+      {n:16,name:'1 Peter',chapters:5,verses:105},
+    ]
+  },
+  {
+    id:'paul2', color:'#60a5fa',
+    name:"Paul's Letters — Christian Living",
+    desc:"How to be a Christian, God's promises and personality",
+    books:[
+      {n:17,name:'1 Corinthians',chapters:16,verses:437},
+      {n:18,name:'2 Corinthians',chapters:13,verses:257},
+      {n:19,name:'Ephesians',chapters:6,verses:155},
+      {n:20,name:'Philippians',chapters:4,verses:104},
+      {n:21,name:'1 John',chapters:5,verses:105},
+      {n:22,name:'2 John',chapters:1,verses:13},
+      {n:23,name:'3 John',chapters:1,verses:15},
+      {n:24,name:'1 Timothy',chapters:6,verses:113},
+      {n:25,name:'2 Timothy',chapters:4,verses:83},
+      {n:26,name:'James',chapters:5,verses:108},
+      {n:27,name:'2 Peter',chapters:3,verses:61},
+      {n:28,name:'Jude',chapters:1,verses:25},
+      {n:29,name:'Psalms',chapters:150,verses:2461},
+      {n:30,name:'1 Thessalonians',chapters:5,verses:89},
+      {n:31,name:'2 Thessalonians',chapters:3,verses:47},
+    ]
+  },
+  {
+    id:'history', color:'#34d399',
+    name:'Historical Books',
+    desc:"Israel's rise and fall, God redeeming His people",
+    books:[
+      {n:32,name:'Joshua',chapters:24,verses:658},
+      {n:33,name:'Judges',chapters:21,verses:618},
+      {n:34,name:'1 Samuel',chapters:31,verses:810},
+      {n:35,name:'2 Samuel',chapters:24,verses:695},
+      {n:36,name:'1 Kings',chapters:22,verses:816},
+      {n:37,name:'2 Kings',chapters:25,verses:719},
+      {n:38,name:'1 Chronicles',chapters:29,verses:942},
+      {n:39,name:'2 Chronicles',chapters:36,verses:822},
+      {n:40,name:'Ezra',chapters:10,verses:280},
+      {n:41,name:'Nehemiah',chapters:13,verses:406},
+      {n:42,name:'Jeremiah',chapters:52,verses:1364},
+      {n:43,name:'Lamentations',chapters:5,verses:154},
+      {n:44,name:'Ezekiel',chapters:48,verses:1273},
+      {n:45,name:'Joel',chapters:3,verses:73},
+      {n:46,name:'Amos',chapters:9,verses:146},
+      {n:47,name:'Obadiah',chapters:1,verses:21},
+      {n:48,name:'Nahum',chapters:3,verses:47},
+      {n:49,name:'Habakkuk',chapters:3,verses:56},
+      {n:50,name:'Zephaniah',chapters:3,verses:53},
+      {n:51,name:'Haggai',chapters:2,verses:38},
+      {n:52,name:'Zechariah',chapters:14,verses:211},
+      {n:53,name:'Malachi',chapters:4,verses:55},
+      {n:54,name:'Micah',chapters:7,verses:105},
+      {n:55,name:'Hosea',chapters:14,verses:197},
+    ]
+  },
+  {
+    id:'stories', color:'#fb7185',
+    name:'Stories, Songs & Early Church',
+    desc:'Love stories, short narratives, church history',
+    books:[
+      {n:56,name:'Ruth',chapters:4,verses:85},
+      {n:57,name:'Esther',chapters:10,verses:167},
+      {n:58,name:'Jonah',chapters:4,verses:48},
+      {n:59,name:'Song of Solomon',chapters:8,verses:117},
+      {n:60,name:'Acts',chapters:28,verses:1007},
+      {n:61,name:'Titus',chapters:3,verses:46},
+      {n:62,name:'Philemon',chapters:1,verses:25},
+    ]
+  },
+  {
+    id:'prophecy', color:'#818cf8',
+    name:'Major Prophecy & End Times',
+    desc:'Why things had to happen, prophecies about Jesus and the end',
+    books:[
+      {n:63,name:'Hebrews',chapters:13,verses:303},
+      {n:64,name:'Isaiah',chapters:66,verses:1292},
+      {n:65,name:'Daniel',chapters:12,verses:357},
+      {n:66,name:'Revelation',chapters:22,verses:404},
+    ]
+  },
+];
+
+let completed = {};
+let pace = 5;
+let openGroups = {};
+
+function load() {
+  try { completed = JSON.parse(localStorage.getItem('bsv2') || '{}'); } catch(e) { completed = {}; }
+  try { openGroups = JSON.parse(localStorage.getItem('bsopen') || '{}'); } catch(e) { openGroups = {}; }
+}
+function save() {
+  try { localStorage.setItem('bsv2', JSON.stringify(completed)); } catch(e) {}
+  try { localStorage.setItem('bsopen', JSON.stringify(openGroups)); } catch(e) {}
+}
+
+function totals() {
+  let books=0, chapters=0, verses=0;
+  GROUPS.forEach(g => g.books.forEach(b => {
+    if(completed[b.n]) { books++; chapters+=b.chapters; verses+=b.verses; }
+  }));
+  return {books,chapters,verses};
+}
+
+function updateStats() {
+  const t = totals();
+  document.getElementById('sBooks').textContent = t.books;
+  document.getElementById('sCh').textContent = t.chapters >= 1000 ? (t.chapters/1000).toFixed(1)+'k' : t.chapters;
+  document.getElementById('sV').textContent = t.verses >= 1000 ? (t.verses/1000).toFixed(1)+'k' : t.verses;
+  const pct = Math.round(t.verses/31102*100);
+  document.getElementById('sPct').textContent = pct+'%';
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progText').textContent = t.verses.toLocaleString()+' of 31,102 verses';
+  document.getElementById('botPct').textContent = pct+'%';
+}
+
+function weekLabel(startCh, numCh) {
+  const ppd = pace * 7;
+  const w1 = Math.floor(startCh/ppd)+1;
+  const w2 = Math.floor((startCh+numCh-1)/ppd)+1;
+  return w1===w2 ? 'Wk '+w1 : 'Wk '+w1+'–'+w2;
+}
+
+function renderAll() {
+  const wrap = document.getElementById('groupsWrap');
+  let cumCh = 0;
+  wrap.innerHTML = GROUPS.map(g => {
+    const isOpen = openGroups[g.id] !== false;
+    const doneCnt = g.books.filter(b=>completed[b.n]).length;
+    const allDone = doneCnt === g.books.length;
+
+    const rows = g.books.map(b => {
+      const done = !!completed[b.n];
+      const wk = weekLabel(cumCh, b.chapters);
+      cumCh += b.chapters;
+      return `<div class="book-row${done?' done':''}" onclick="toggleBook(${b.n})">
+        <div class="check${done?' checked':''}">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="book-info">
+          <div class="book-name">${b.n}. ${b.name}</div>
+          <div class="book-meta">${b.chapters} ch · ${b.verses.toLocaleString()} verses</div>
+        </div>
+        <div class="book-week">${wk}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="group${isOpen?' open':''}" id="grp-${g.id}">
+      <div class="group-head" onclick="toggleGroup('${g.id}')">
+        <div class="group-dot" style="background:${g.color}"></div>
+        <div class="group-text">
+          <div class="group-name">${g.name}</div>
+          <div class="group-desc">${g.desc}</div>
+        </div>
+        <div class="group-badge${allDone?' all-done':''}">${doneCnt}/${g.books.length}</div>
+        <div class="group-chevron">▾</div>
+      </div>
+      <div class="book-list">${rows}</div>
+    </div>`;
+  }).join('');
+
+  updateStats();
+}
+
+function toggleBook(n) {
+  completed[n] = !completed[n];
+  save();
+  renderAll();
+}
+
+function toggleGroup(id) {
+  openGroups[id] = openGroups[id] === false ? true : false;
+  save();
+  renderAll();
+}
+
+function resetAll() {
+  if(!confirm('Reset all progress? This cannot be undone.')) return;
+  completed = {};
+  save();
+  renderAll();
+}
+
+load();
+renderAll();
+</script>
+</body>
+</html>
